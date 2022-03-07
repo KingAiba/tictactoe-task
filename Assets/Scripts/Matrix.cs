@@ -427,7 +427,7 @@ public class Matrix
         return determinant;
     }
 
-    public virtual void OnMatrixUpdate(int Row = -1, int Col = -1)
+    public virtual void OnMatrixUpdate()
     {
 
     }

@@ -27,13 +27,21 @@ public class GameManager : MonoBehaviour
     // public Cell[,] cellMat;
     public GameObject cellPrefabs;
 
+    public Canvas gameCanvas;
+    public GameObject uiCellPrefab;
+    public bool uiGame;
+
+    public float uiCellSize = 1;
+    public float uiCellSpacing = 1;
+
     public delegate void OnWinDelegate();
     public OnWinDelegate OnWinEvent;
 
     public delegate void StatusUpdatedDelegate(int Row, int Col, CellStatus status);
     public StatusUpdatedDelegate StatusUpdated;
 
-    public List<UnityCell> ActiveUnityCells; 
+    public List<UnityCell> ActiveUnityCells;
+    public List<UnityUICell> ActiveUnityUICells;
 
     void Start()
     {
@@ -71,13 +79,45 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void UICellUnityCreated(int x, int z)
+    {
+        GameObject newCell = Instantiate(uiCellPrefab);
+        //newCell.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
+        newCell.transform.SetParent(gameCanvas.transform, false);
+
+        RectTransform newcellRectTransform = newCell.GetComponent<RectTransform>();
+        newcellRectTransform.localPosition = new Vector3(x * uiCellSpacing - 200, z * uiCellSpacing - 200, 0);
+        newcellRectTransform.localScale = new Vector3(uiCellSize, uiCellSize, uiCellSize);
+
+        UnityUICell newCellScript = newCell.GetComponent<UnityUICell>();
+        ActiveUnityUICells.Add(newCellScript);
+
+        Cell curCell = TTTMat.GetCell(x, z);
+        newCellScript.SetCell(curCell);
+        newCellScript.SetRowAndCol(curCell.row, curCell.col);
+        curCell.OnStatusChange += newCellScript.SetStatus;
+        curCell.OnPositionChange += newCellScript.SetRowAndCol;
+
+        //newCellScript.cellScript = TTTMat.GetCell(x, z);
+        newCellScript.SetGameManager(this);
+
+    }
+
     public void DrawGrid()
     {
         for(int x=0; x<rows; x++)
         {
             for(int z=0; z<cols; z++)
             {
-                CellUnityCreated(x, z);
+                if(uiGame)
+                {
+                    UICellUnityCreated(x, z);
+                }
+                else
+                {
+                    CellUnityCreated(x, z);
+                }
+                
                 //GameObject newCell = Instantiate(cellPrefabs, new Vector3(x * cellSpacing, 0, z * cellSpacing), cellPrefabs.transform.rotation);
                 //newCell.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
 
