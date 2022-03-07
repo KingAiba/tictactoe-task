@@ -24,7 +24,6 @@ public class UnityCell : MonoBehaviour
         //cellScript = new Cell(row, col);
 
         //onStatusChange = cellScript.OnStatusChange;
-
      
     }
 

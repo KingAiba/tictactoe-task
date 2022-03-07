@@ -48,6 +48,11 @@ public class TicTacToeMatrix : Matrix
         SetMatValuesTo((int)status+1);
     }
 
+    public CellStatus GetCellStatus(int Row, int Col)
+    {
+        return cellMatrix[Row, Col].status;
+    }
+
     public bool CheckWin(int row, int col)
     {
         if(IsRowSame(row))

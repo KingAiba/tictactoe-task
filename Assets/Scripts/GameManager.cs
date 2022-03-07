@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using UnityEngine.UI;
+using TMPro;
+
 public class GameManager : MonoBehaviour
 {
     public int rows=2;
@@ -27,12 +30,14 @@ public class GameManager : MonoBehaviour
     // public Cell[,] cellMat;
     public GameObject cellPrefabs;
 
-    public Canvas gameCanvas;
+    public GameObject gameBoard;
     public GameObject uiCellPrefab;
     public bool uiGame;
 
     public float uiCellSize = 1;
     public float uiCellSpacing = 1;
+
+    public float uiCellOffset = -5;
 
     public delegate void OnWinDelegate();
     public OnWinDelegate OnWinEvent;
@@ -43,6 +48,9 @@ public class GameManager : MonoBehaviour
     public List<UnityCell> ActiveUnityCells;
     public List<UnityUICell> ActiveUnityUICells;
 
+
+    public bool isRemoverActive = false;
+
     void Start()
     {
         TTTMat = new TicTacToeMatrix(rows, cols);
@@ -52,12 +60,6 @@ public class GameManager : MonoBehaviour
         //StatusUpdated += Statys
         mat = TTTMat.mat;
         DrawGrid();
-    }
-
-   
-    void Update()
-    {
-        
     }
 
     public void CellUnityCreated(int x, int z)
@@ -83,10 +85,10 @@ public class GameManager : MonoBehaviour
     {
         GameObject newCell = Instantiate(uiCellPrefab);
         //newCell.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
-        newCell.transform.SetParent(gameCanvas.transform, false);
+        newCell.transform.SetParent(gameBoard.transform, false);
 
         RectTransform newcellRectTransform = newCell.GetComponent<RectTransform>();
-        newcellRectTransform.localPosition = new Vector3(x * uiCellSpacing - 200, z * uiCellSpacing - 200, 0);
+        newcellRectTransform.localPosition = new Vector3(x * uiCellSpacing + (uiCellOffset * rows), z * uiCellSpacing + (uiCellOffset * rows), 0);
         newcellRectTransform.localScale = new Vector3(uiCellSize, uiCellSize, uiCellSize);
 
         UnityUICell newCellScript = newCell.GetComponent<UnityUICell>();
@@ -136,10 +138,25 @@ public class GameManager : MonoBehaviour
         return (CellStatus)(temp);
     }
 
+    public CellStatus PeekCurrPlayer()
+    {
+        return (CellStatus)currPlayer;
+    }
+
     public void SetStatusOnClick(int Row, int Col)
     {
+        //Debug.Log(PeekCurrPlayer());
         curr = GetNextPlayer();
-        TTTMat.SetCellStatus(Row, Col, curr);
+        if(TTTMat.GetCellStatus(Row, Col) == CellStatus.None && !isRemoverActive)
+        {
+            TTTMat.SetCellStatus(Row, Col, curr);
+        }
+        else if(TTTMat.GetCellStatus(Row, Col) != CellStatus.None && isRemoverActive)
+        {
+            TTTMat.SetCellStatus(Row, Col, UseRemover());
+        }
+        
+        
     }
 
     public void SetMatrixCellStatus(int Row, int Col, CellStatus status)
@@ -160,5 +177,28 @@ public class GameManager : MonoBehaviour
         }
         
         Debug.Log(TTTMat.PrintMat());
+    }
+
+    public void ActivateRemover(Button btn)
+    {
+        isRemoverActive = !isRemoverActive;
+        if(isRemoverActive)
+        {
+            ColorBlock cb = btn.colors;
+            cb.selectedColor = Color.gray;
+            btn.colors = cb;
+        }
+        else
+        {
+            ColorBlock cb = btn.colors;
+            cb.selectedColor = Color.white;
+            btn.colors = cb;
+        }
+    }
+
+    public CellStatus UseRemover()
+    {
+        isRemoverActive = false;
+        return CellStatus.None;
     }
 }

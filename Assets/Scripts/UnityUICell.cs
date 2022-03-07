@@ -36,8 +36,8 @@ public class UnityUICell : MonoBehaviour, IPointerDownHandler
             gameManager.SetStatusOnClick(row, col);
             if (!gameManager.isWon)
             {
-                ToggleOnMouseDown();
-                gameManager.OnWinEvent -= ToggleOnMouseDown;
+                //ToggleOnMouseDown();
+                //gameManager.OnWinEvent -= ToggleOnMouseDown;
             }
 
         }
@@ -46,7 +46,7 @@ public class UnityUICell : MonoBehaviour, IPointerDownHandler
     public void SetGameManager(GameManager gm)
     {
         gameManager = gm;
-        gameManager.OnWinEvent += ToggleOnMouseDown;
+        //gameManager.OnWinEvent += ToggleOnMouseDown;
     }
 
     public void CellStatusUpdate()
